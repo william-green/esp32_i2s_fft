@@ -1,15 +1,19 @@
 #include <Arduino.h>
 #include <driver/i2s.h>
+#include <Adafruit_NeoPixel.h>
 //#include <fft.h>
 
 extern "C"{
     #include "fft.h"
 }
 
-//doublecheck the pinout numbers
 #define I2S_WS 15
 #define I2S_SD 32
 #define I2S_SCK 14
+
+#define LED_PIN 2
+#define NUM_LEDS 64
+Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 #define I2S_SAMPLE_RATE   16000
 #define I2S_BUFFER_SIZE   512
@@ -18,6 +22,13 @@ float vReal[I2S_BUFFER_SIZE];
 float vImag[I2S_BUFFER_SIZE];
 float fft_output[I2S_BUFFER_SIZE];
 fft_config_t *fft_instance;//global pointer to the fft object
+
+void flash_leds(){
+    for (int i = 0; i < NUM_LEDS; i++) {
+    strip.setPixelColor(i, strip.Color(10, 10, 10)); // Green
+  }
+  strip.show();
+}
 
 void setup() {
   // put your setup code here, to run once:
@@ -58,6 +69,9 @@ void setup() {
 
 
   Serial.println("FFT configured");
+
+  strip.begin();
+  strip.show();
 }
 
 void loop() {
@@ -98,6 +112,8 @@ void loop() {
     }
 
     Serial.println();
+
+    flash_leds();
     delay(10000);
 
   //Serial.println(vReal[0]);
