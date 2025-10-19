@@ -10,17 +10,20 @@ extern "C"{
 #define I2S_WS 15
 #define I2S_SD 32
 #define I2S_SCK 14
+#define I2S_SAMPLE_RATE   16000
+#define I2S_BUFFER_SIZE   512
 
 #define LED_PIN 2
 #define NUM_LEDS 64
 #define LED_COLS 8
 #define LED_ROWS 8
-#define BRIGHTNESS 50
 const int columnBase[LED_COLS] = {0, 8, 16, 24, 32, 40, 48, 56};
 Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-#define I2S_SAMPLE_RATE   16000
-#define I2S_BUFFER_SIZE   512
+//tuning parameters
+#define BRIGHTNESS 10
+#define MIN_THRESHOLD 0.2f
+
 
 float vReal[I2S_BUFFER_SIZE];
 float vImag[I2S_BUFFER_SIZE];
@@ -32,6 +35,7 @@ void flash_leds(float* fft_magnitude_output){
     int bin_size = (I2S_BUFFER_SIZE / 2) / LED_COLS; // how many fft bins per led column
     float bin_magnitudes[LED_COLS] = {0};
     float max_magnitude = 0.0f;
+    float coeff = BRIGHTNESS / 255.0f;
 
     //Serial.println("bin size (magnitude entries per led bin): " + String(bin_size));
 
@@ -50,6 +54,11 @@ void flash_leds(float* fft_magnitude_output){
     //normalize the values
     for(int i = 0; i < LED_COLS; i++){
         bin_magnitudes[i] /= max_magnitude; // normalize to 0.0 - 1.0
+
+        bin_magnitudes[i] -= MIN_THRESHOLD;
+        //if(bin_magnitudes[i] < MIN_THRESHOLD){
+         //   bin_magnitudes[i] = 0.0f;
+        //}
     }
 
     int led_rows_lit[LED_COLS] = {0};
@@ -68,7 +77,7 @@ void flash_leds(float* fft_magnitude_output){
             for(int j = 0; j < LED_ROWS; j++){
                 int led_index = columnBase[i] + j;
                 if(j < led_rows_lit[i]){
-                    strip.setPixelColor(led_index, strip.Color(10, 10, 10));
+                    strip.setPixelColor(led_index, strip.Color(coeff*255, coeff*255, coeff*255));
                 } else {
                     strip.setPixelColor(led_index, strip.Color(0, 0, 0));
                 }
@@ -78,7 +87,7 @@ void flash_leds(float* fft_magnitude_output){
             for(int j = 0; j < LED_ROWS; j++){
                 int led_index = columnBase[i] + (LED_ROWS - 1 - j);
                 if(j < led_rows_lit[i]){
-                    strip.setPixelColor(led_index, strip.Color(10, 10, 10));
+                    strip.setPixelColor(led_index, strip.Color(coeff*255, coeff*255, coeff*255));
                 } else {
                     strip.setPixelColor(led_index, strip.Color(0, 0, 0));
                 }
@@ -203,7 +212,7 @@ void loop() {
     //Serial.println();
 
     flash_leds(fft_magnitude_output);
-    delay(1);
+    //delay(1);
 
   //Serial.println(vReal[0]);
   //Serial.println(fft_output[15]);
