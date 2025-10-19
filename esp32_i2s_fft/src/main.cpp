@@ -16,7 +16,7 @@ extern "C"{
 #define LED_COLS 8
 #define LED_ROWS 8
 #define BRIGHTNESS 50
-const int columnBase[LED_COLS] = {0, 15, 16, 31, 32, 47, 48, 63};
+const int columnBase[LED_COLS] = {0, 8, 16, 24, 32, 40, 48, 56};
 Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 #define I2S_SAMPLE_RATE   16000
