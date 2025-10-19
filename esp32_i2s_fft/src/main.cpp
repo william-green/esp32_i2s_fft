@@ -23,6 +23,7 @@ Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
 //tuning parameters
 #define BRIGHTNESS 10
 #define MIN_THRESHOLD 0.2f
+#define MAX_THRESHOLD 2.0f
 
 
 float vReal[I2S_BUFFER_SIZE];
@@ -54,8 +55,10 @@ void flash_leds(float* fft_magnitude_output){
     //normalize the values
     for(int i = 0; i < LED_COLS; i++){
         bin_magnitudes[i] /= max_magnitude; // normalize to 0.0 - 1.0
-
-        bin_magnitudes[i] -= MIN_THRESHOLD;
+        if(bin_magnitudes[i] < MIN_THRESHOLD){
+            bin_magnitudes[i] = 0.0f;
+        }
+        //bin_magnitudes[i] -= MIN_THRESHOLD;
         //if(bin_magnitudes[i] < MIN_THRESHOLD){
          //   bin_magnitudes[i] = 0.0f;
         //}
